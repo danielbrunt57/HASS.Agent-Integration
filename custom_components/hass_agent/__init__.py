@@ -13,7 +13,13 @@ from homeassistant.components.mqtt.subscription import (
 )
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_ID, CONF_NAME, CONF_URL, Platform
+from homeassistant.const import (
+    CONF_ID,
+    CONF_NAME, 
+    CONF_URL, 
+    Platform, 
+    SERVICE_RELOAD,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import discovery
 
@@ -205,4 +211,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_setup(hass: HomeAssistant, config) -> bool:
     hass.http.register_view(MediaPlayerThumbnailView(hass))
+
+    async def _handle_reload(service):
+        """Handle reload service call."""
+        _LOGGER.info("Service %s.reload called: reloading integration", DOMAIN)
+
+        current_entries = hass.config_entries.async_entries(DOMAIN)
+
+        reload_tasks = [
+            hass.config_entries.async_reload(entry.entry_id)
+            for entry in current_entries
+        ]
+
+        await asyncio.gather(*reload_tasks)
+    
     return True
