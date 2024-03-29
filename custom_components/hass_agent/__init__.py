@@ -222,10 +222,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up hass_agent integration."""
     hass.http.register_view(MediaPlayerThumbnailView(hass))
 
-    async def reload_config(_: ServiceCall) -> None:
+#    async def reload_config(_: ServiceCall) -> None:
         """Reload configuration."""
-        await process_config(await async_integration_yaml_config(hass, DOMAIN))
+#        await process_config(await async_integration_yaml_config(hass, DOMAIN))
 
-    async_register_admin_service(hass, DOMAIN, SERVICE_RELOAD, reload_config)
+    async_register_admin_service(hass, DOMAIN, SERVICE_RELOAD)
 
     return True
