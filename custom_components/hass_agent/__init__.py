@@ -1,19 +1,25 @@
 """The HASS.Agent integration."""
 from __future__ import annotations
+
+import asyncio
+from collections.abc import Coroutine
+from contextlib import suppress
 import json
 import logging
+from pathlib import Path
 import requests
+from typing import Any, cast
 from .views import MediaPlayerThumbnailView
-from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.typing import ConfigType
+
+import voluptuous as vol
+
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.components.mqtt.models import ReceiveMessage
 from homeassistant.components.mqtt.subscription import (
     async_prepare_subscribe_topics,
     async_subscribe_topics,
     async_unsubscribe_topics,
 )
-
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_ID,
     CONF_NAME, 
@@ -21,19 +27,21 @@ from homeassistant.const import (
     Platform, 
     SERVICE_RELOAD,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall, async_get_hass
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import discovery
+from homeassistant.helpers.service import async_register_admin_service
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.util import slugify    
 
 from .const import DOMAIN
 
 DOMAIN = "hass_agent"
-
 FOLDER = "hass_agent"
 
 PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER]
 
 _logger = logging.getLogger(__name__)
-
 
 def update_device_info(hass: HomeAssistant, entry: ConfigEntry, new_device_info):
     device_registry = dr.async_get(hass)
@@ -45,7 +53,6 @@ def update_device_info(hass: HomeAssistant, entry: ConfigEntry, new_device_info)
         model=new_device_info["device"]["model"],
         sw_version=new_device_info["device"]["sw_version"],
     )
-
 
 async def handle_apis_changed(hass: HomeAssistant, entry: ConfigEntry, apis):
     if apis is not None:
@@ -104,7 +111,6 @@ async def handle_apis_changed(hass: HomeAssistant, entry: ConfigEntry, apis):
                 )
 
                 hass.data[DOMAIN][entry.entry_id]["loaded"]["notifications"] = False
-
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up HASS.Agent from a config entry."""
@@ -176,7 +182,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     return True
 
-
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
 
@@ -213,9 +218,15 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     return unload_ok
 
-
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Set up hass_agent integration."""
     hass.http.register_view(MediaPlayerThumbnailView(hass))
-    hass.services.register(DOMAIN, SERVICE_RELOAD)
-    
+
+    async def reload_config(_: ServiceCall) -> None:
+        """Reload configuration."""
+        await process_config(await async_integration_yaml_config(hass, DOMAIN))
+
+    await process_config(config)
+    async_register_admin_service(hass, DOMAIN, SERVICE_RELOAD, reload_config)
+
     return True
