@@ -39,7 +39,7 @@ from .const import DOMAIN
 DOMAIN = "hass_agent"
 FOLDER = "hass_agent"
 
-PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER]
+PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.]
 
 _logger = logging.getLogger(__name__)
 
@@ -222,10 +222,19 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up hass_agent integration."""
     hass.http.register_view(MediaPlayerThumbnailView(hass))
 
-#    async def reload_config(_: ServiceCall) -> None:
+    async def reload_config(_: ServiceCall) -> None:
         """Reload configuration."""
-#        await process_config(await async_integration_yaml_config(hass, DOMAIN))
+         _LOGGER.info("Service %s.reload called: reloading integration", DOMAIN)
+        current_entries = hass.config_entries.async_entries(DOMAIN)
 
-    async_register_admin_service(hass, DOMAIN, SERVICE_RELOAD)
+        reload_tasks = [
+            hass.config_entries.async_reload(entry.entry_id)
+            for entry in current_entries
+        ]
+
+        await asyncio.gather(*reload_tasks)
+#        await process_config(await async_setup_entry(hass, DOMAIN))
+
+    async_register_admin_service(hass, DOMAIN, SERVICE_RELOAD, reload_config)
 
     return True
