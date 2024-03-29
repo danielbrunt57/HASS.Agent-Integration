@@ -5,6 +5,7 @@ import logging
 import requests
 from .views import MediaPlayerThumbnailView
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.components.mqtt.models import ReceiveMessage
 from homeassistant.components.mqtt.subscription import (
     async_prepare_subscribe_topics,
@@ -24,6 +25,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import discovery
 
 from .const import DOMAIN
+
+DOMAIN = "hass_agent"
+
+FOLDER = "hass_agent"
 
 PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER]
 
@@ -209,20 +214,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
-async def async_setup(hass: HomeAssistant, config) -> bool:
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     hass.http.register_view(MediaPlayerThumbnailView(hass))
-
-    async def _handle_reload(service):
-        """Handle reload service call."""
-        _LOGGER.info("Service %s.reload called: reloading integration", DOMAIN)
-
-        current_entries = hass.config_entries.async_entries(DOMAIN)
-
-        reload_tasks = [
-            hass.config_entries.async_reload(entry.entry_id)
-            for entry in current_entries
-        ]
-
-        await asyncio.gather(*reload_tasks)
+    hass.services.register(DOMAIN, SERVICE_RELOAD)
     
     return True
