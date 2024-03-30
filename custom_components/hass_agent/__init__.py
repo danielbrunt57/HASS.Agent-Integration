@@ -224,7 +224,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     async def reload_config(_: ServiceCall) -> None:
         """Reload configuration."""
-         _LOGGER.info("Service %s.reload called: reloading integration", DOMAIN)
+        _LOGGER.info("Service %s.reload called: reloading integration", DOMAIN)
         current_entries = hass.config_entries.async_entries(DOMAIN)
 
         reload_tasks = [
