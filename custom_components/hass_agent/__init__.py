@@ -39,7 +39,7 @@ from .const import DOMAIN
 DOMAIN = "hass_agent"
 FOLDER = "hass_agent"
 
-PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER]
+PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.MQTT]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -222,6 +222,16 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up hass_agent integration."""
     hass.http.register_view(MediaPlayerThumbnailView(hass))
 
+    """Set up the MQTT state feed."""
+    # Make sure MQTT is available and the entry is loaded
+#    if not hass.config_entries.async_entries(
+#        mqtt.DOMAIN
+#    ) or not await hass.config_entries.async_wait_component(
+#        hass.config_entries.async_entries(mqtt.DOMAIN)[0]
+#    ):
+#        _LOGGER.error("MQTT integration is not available")
+#        return False
+        
     async def _handle_reload(service):
         """Handle reload service call."""
         _LOGGER.info("Service %s.reload called: reloading integration", DOMAIN)
