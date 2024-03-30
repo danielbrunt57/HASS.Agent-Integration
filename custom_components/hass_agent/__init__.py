@@ -25,8 +25,8 @@ from homeassistant.const import (
     CONF_ID,
     CONF_NAME, 
     CONF_URL, 
-    DATA_MQTT,
-    DATA_MQTT_AVAILABLE,
+#    DATA_MQTT,
+#    DATA_MQTT_AVAILABLE,
     Platform, 
     SERVICE_RELOAD,
 )
