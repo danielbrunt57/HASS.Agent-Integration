@@ -39,7 +39,7 @@ from .const import DOMAIN
 DOMAIN = "hass_agent"
 FOLDER = "hass_agent"
 
-PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.]
+PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER]
 
 _logger = logging.getLogger(__name__)
 
