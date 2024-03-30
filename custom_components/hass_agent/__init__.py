@@ -41,7 +41,7 @@ FOLDER = "hass_agent"
 
 PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER]
 
-_logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 def update_device_info(hass: HomeAssistant, entry: ConfigEntry, new_device_info):
     device_registry = dr.async_get(hass)
