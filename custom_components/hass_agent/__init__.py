@@ -222,9 +222,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up hass_agent integration."""
     hass.http.register_view(MediaPlayerThumbnailView(hass))
 
-    async def reload_config(_: ServiceCall) -> None:
-        """Reload configuration."""
+    async def _handle_reload(service):
+        """Handle reload service call."""
         _LOGGER.info("Service %s.reload called: reloading integration", DOMAIN)
+
         current_entries = hass.config_entries.async_entries(DOMAIN)
 
         reload_tasks = [
