@@ -132,7 +132,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if url is not None:
 
         def get_device_info():
-            return requests.get(f"{url}/info", timeout=10)
+            return requests.get(f"{url}/info", timeout=60)
 
         response = await hass.async_add_executor_job(get_device_info)
 
