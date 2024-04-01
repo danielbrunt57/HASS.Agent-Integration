@@ -11,8 +11,6 @@ import requests
 from typing import Any, cast
 from .views import MediaPlayerThumbnailView
 
-#import voluptuous as vol
-
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.components import mqtt
 from homeassistant.components.mqtt.models import ReceiveMessage
@@ -25,8 +23,6 @@ from homeassistant.const import (
     CONF_ID,
     CONF_NAME, 
     CONF_URL, 
-#    DATA_MQTT,
-#    DATA_MQTT_AVAILABLE,
     Platform, 
     SERVICE_RELOAD,
 )
